@@ -1,50 +1,76 @@
-import telebot
+import os
 import random
-from datetime import datetime
 
-TOKEN = "8707508404:AAF1cI6ogosWqQh_egkeDtYf3a3M1slCNWM"
+from telegram import Update
+from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
 
-bot = telebot.TeleBot(TOKEN)
+TOKEN = os.getenv("BOT_TOKEN")
 
-jokes = [
-    "Why did the danfo driver cross the road? To avoid LASTMA! 😂",
-    "Lagos traffic no be joke, but we still dey smile!",
-    "NEPA take light? No worry, your bot still get power! ⚡"
+JOKES = [
+    "Why computer no dey hungry? Because e get plenty bytes! 😂",
+    "Teacher: Why you late? Pikin: Sir, signboard talk say 'School Ahead, Go Slow' 😂",
+    "Wetin be difference between your bot and NEPA? My bot dey respond sharp sharp! 😂",
+    "Why student carry ladder go school? Because e hear say high level dey inside 😂",
+    "I no be robot, I be your helper wey sabi joke small-small 😎"
 ]
 
-lagos_tips = [
-    "Traffic tip: Avoid 3rd Mainland Bridge 7-10am & 4-8pm if you can!",
-    "Danfo tip: Always ask 'Owo da?' before you enter!",
-    "Lagos hack: Use BRT lane if you get BRT, but no follow yellow bus lane o!",
-    "If you dey Oshodi, hold your phone tight! 😅"
-]
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    name = update.effective_user.first_name
+    await update.message.reply_text(
+        f"Hello {name}! 👋\n"
+        "Na me be your Helper Bot.\n"
+        "Ask me question, or type /help make you see wetin I sabi do."
+    )
 
-@bot.message_handler(commands=['start'])
-def start(message):
-    bot.reply_to(message, "🚀 Welcome back boss! Lagos Helper Bot is FULLY AWAKE!\n\nType /help to see wetin I fit do.")
+async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "Wetin I sabi do:\n"
+        "/start - Welcome message\n"
+        "/help - Show this list\n"
+        "/joke - I go tell you joke\n\n"
+        "Ask me question like:\n"
+        "- Wetin be your name?\n"
+        "- How you dey?\n"
+        "- Who make you?\n"
+        "- What can you do?\n\n"
+        "If na question wey I no sabi, I go repeat am."
+    )
 
-@bot.message_handler(commands=['help'])
-def help_cmd(message):
-    bot.reply_to(message, "🤖 *What I fit do for you:*\n/start - Wake me up\n/help - See this list\n/lagos - Get Lagos traffic tips\n/joke - I go crack Naija joke\n/time - Current time\n\nJust send any message and I go reply!", parse_mode="Markdown")
+async def joke_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(random.choice(JOKES))
 
-@bot.message_handler(commands=['lagos'])
-def lagos_cmd(message):
-    tip = random.choice(lagos_tips)
-    bot.reply_to(message, f"📍 Lagos Tip:\n{tip}")
+async def answer_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = update.message.text.lower().strip()
 
-@bot.message_handler(commands=['joke'])
-def joke_cmd(message):
-    joke = random.choice(jokes)
-    bot.reply_to(message, f"😂 {joke}")
+    if "your name" in text:
+        reply = "My name na Helper Bot, your personal assistant 🤖"
+    elif "how you dey" in text or "how are you" in text:
+        reply = "I dey fine o! Thanks for asking. How you dey too? 😊"
+    elif "who make you" in text or "who created you" in text or "who be your oga" in text:
+        reply = "Na Max Chike be my oga! Na im build me for Render 😎"
+    elif "what can you do" in text or "wetin you sabi do" in text:
+        reply = "I sabi answer question, tell joke, and repeat wetin you talk. Type /help for more."
+    elif "thank" in text:
+        reply = "You are welcome! Na my work be that 🙏"
+    elif "bye" in text or "goodbye" in text:
+        reply = "Bye bye! Come back anytime you need help 👋"
+    elif text.endswith("?"):
+        reply = f"Good question! You ask: '{update.message.text}'\nI still dey learn, but I go try answer you soon. For now, try ask me 'How you dey?'"
+    else:
+        reply = f"You talk say: '{update.message.text}'\n\nTry /help, I sabi more things now!"
 
-@bot.message_handler(commands=['time'])
-def time_cmd(message):
-    now = datetime.now().strftime("%I:%M %p")
-    bot.reply_to(message, f"⏰ Time now na {now} for Lagos!")
+    await update.message.reply_text(reply)
 
-@bot.message_handler(func=lambda m: True)
-def all_messages(message):
-    bot.reply_to(message, f"You talk say: '{message.text}'\n\nTry /help, I sabi more things now!")
+def main():
+    app = Application.builder().token(TOKEN).build()
 
-print("✅ Lagos Helper Bot Level 2 is running...")
-bot.infinity_polling()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("help", help_cmd))
+    app.add_handler(CommandHandler("joke", joke_cmd))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, answer_question))
+
+    print("Bot don start...")
+    app.run_polling()
+
+if __name__ == "__main__":
+    main()
