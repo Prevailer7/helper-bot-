@@ -1,53 +1,51 @@
-import os
-import random
 import telebot
 
-TOKEN = os.getenv("BOT_TOKEN")
+TOKEN = "YOUR_TOKEN_HERE"  # <-- Change am to your token from BotFather
+
 bot = telebot.TeleBot(TOKEN)
 
-JOKES = [
-    "Why computer no dey hungry? Because e get plenty bytes! 😂",
-    "Teacher: Why you late? Pikin: Sir, signboard talk say 'School Ahead, Go Slow' 😂",
-    "Wetin be difference between your bot and NEPA? My bot dey respond sharp sharp! 😂",
-    "Why student carry ladder go school? Because e hear say high level dey inside 😂",
-    "I no be robot, I be your helper wey sabi joke small-small 😎"
-]
+answers = {
+    "wetin be your name": "My name na Helper Bot, your personal assistant 🤖",
+    "what is your name": "My name na Helper Bot, your personal assistant 🤖",
+    "who be your name": "My name na Helper Bot, your personal assistant 🤖",
+    "wetin you sabi do": "I sabi answer question, tell joke, and repeat wetin you talk. Type /help for more.",
+    "what can you do": "I sabi answer question, tell joke, and repeat wetin you talk. Type /help for more.",
+    "how you dey": "I dey fine o! Thank you say you ask. How you dey?",
+    "how are you": "I dey fine o! Thank you say you ask. How you dey?",
+    "who make you": "Na Max Chike make me! Na my oga be that 💪",
+    "who created you": "Na Max Chike make me! Na my oga be that 💪",
+    "wetin be render": "Render na where I dey live for internet. Na here Max put me make I no sleep.",
+    "what is render": "Render na where I dey live for internet. Na here Max put me make I no sleep.",
+    "joke": "Why programmer no like sunlight? Because e get too many bugs! 😂",
+    "tell me joke": "Why programmer no like sunlight? Because e get too many bugs! 😂",
+    "help": "I sabi answer these questions:\n\n- wetin be your name\n- wetin you sabi do\n- how you dey\n- who make you\n- wetin be render\n- joke\n\nTry am!",
+    "hi": "Hello Max! 👋 Wetin you want make I do for you today?",
+    "hello": "Hello Max! 👋 Wetin you want make I do for you today?",
+    "ok": "Ok my oga! Wetin next?",
+    "correct": "Correct! You sabi book o 😎",
+    "thank you": "You be welcome! Na my work be that.",
+    "thanks": "You be welcome! Na my work be that.",
+}
 
 @bot.message_handler(commands=['start'])
-def start(message):
-    name = message.from_user.first_name
-    bot.reply_to(message, f"Hello {name}! 👋\nNa me be your Helper Bot.\nAsk me question, or type /help make you see wetin I sabi do.")
+def send_welcome(message):
+    bot.reply_to(message, f"Hello {message.from_user.first_name}! 👋\nNa me be your Helper Bot.\nAsk me question, or type /help make you see wetin I sabi do.")
 
 @bot.message_handler(commands=['help'])
-def help_cmd(message):
-    bot.reply_to(message, "Wetin I sabi do:\n/start - Welcome message\n/help - Show this list\n/joke - I go tell you joke\n\nAsk me question like:\n- Wetin be your name?\n- How you dey?\n- Who make you?\n- What can you do?")
+def send_help(message):
+    bot.reply_to(message, answers["help"])
 
-@bot.message_handler(commands=['joke'])
-def joke_cmd(message):
-    bot.reply_to(message, random.choice(JOKES))
-
-@bot.message_handler(func=lambda m: True)
-def answer_question(message):
+@bot.message_handler(func=lambda message: True)
+def echo_all(message):
     text = message.text.lower().strip()
-
-    if "your name" in text:
-        reply = "My name na Helper Bot, your personal assistant 🤖"
-    elif "how you dey" in text or "how are you" in text:
-        reply = "I dey fine o! Thanks for asking. How you dey too? 😊"
-    elif "who make you" in text or "who created you" in text or "who be your oga" in text:
-        reply = "Na Max Chike be my oga! Na im build me for Render 😎"
-    elif "what can you do" in text or "wetin you sabi do" in text:
-        reply = "I sabi answer question, tell joke, and repeat wetin you talk. Type /help for more."
-    elif "thank" in text:
-        reply = "You are welcome! Na my work be that 🙏"
-    elif "bye" in text or "goodbye" in text:
-        reply = "Bye bye! Come back anytime you need help 👋"
-    elif text.endswith("?"):
-        reply = f"Good question! You ask: '{message.text}'\nI still dey learn, but I go try answer you soon. For now, try ask me 'How you dey?'"
+    
+    # Remove ? and .
+    text = text.replace("?", "").replace(".", "")
+    
+    if text in answers:
+        bot.reply_to(message, answers[text])
     else:
-        reply = f"You talk say: '{message.text}'\n\nTry /help, I sabi more things now!"
-
-    bot.reply_to(message, reply)
+        bot.reply_to(message, f"You talk say: '{message.text}'\n\nTry /help, I sabi more things now!")
 
 print("Bot don start...")
-bot.polling()
+bot.infinity_polling()
