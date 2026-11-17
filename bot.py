@@ -13,6 +13,7 @@ answers = {
     "how you dey": "I dey fine o! Thank you say you ask. How you dey?",
     "how are you": "I dey fine o! Thank you say you ask. How you dey?",
     "who make you": "Na Max Chike make me! Na my oga be that 💪",
+"who create you": "Na Max Chike make me! Na my oga be that 💪",
     "who created you": "Na Max Chike make me! Na my oga be that 💪",
     "wetin be render": "Render na where I dey live for internet. Na here Max put me make I no sleep.",
     "what is render": "Render na where I dey live for internet. Na here Max put me make I no sleep.",
